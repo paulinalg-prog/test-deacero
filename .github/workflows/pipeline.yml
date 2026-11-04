@@ -35,3 +35,19 @@ jobs:
       - name: Run data pipeline
         run: |
           python scripts/run_pipeline.py --trigger manual
+      - name: Configure dbt profile
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml <<EOF
+          deacero_logistica:
+            target: dev
+            outputs:
+              dev:
+                type: duckdb
+                path: "$GITHUB_WORKSPACE/deacero.duckdb"
+                schema: main
+                threads: 4
+          EOF
+
+      - name: Validate dbt connection
+        run: dbt debug --project-dir dbt
